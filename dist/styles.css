@@ -48,3 +48,20 @@ nav a:hover{transform:translateY(-2px)}nav a.active{box-shadow:0 5px 16px rgba(0
 @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes viewOut{to{opacity:0;transform:translateY(4px)}}@keyframes viewIn{from{opacity:0;transform:translateY(8px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}::view-transition-old(root),::view-transition-new(root){animation:none!important}}
+
+/* Calm motion tuning: soft and purposeful, without constant movement. */
+body::before,.brand-mark i,.date-pill,.habit-row,.sick-toggle.active,.month-day.status-complete::after{animation:none}
+.site-header,.card,.date-pill,.month-day,.habit-row,.soft-button,.icon-button,.sick-toggle,.round-check,nav a{transition:transform .2s ease-out,background-color .3s ease,border-color .3s ease,color .25s ease,box-shadow .3s ease,opacity .25s ease}
+.page-head,.card{animation:softEnter .32s ease-out both}.card:hover{transform:none;box-shadow:0 20px 52px rgba(48,42,31,.065)}
+nav a:hover{transform:translateY(-1px)}nav a.active{transform:none;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.date-pill:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 17px rgba(48,42,31,.065)}
+.habit-row:hover{transform:translateX(2px);box-shadow:0 6px 18px rgba(48,42,31,.05)}
+.habit-row input:checked+.round-check{animation:softCheck .24s ease-out}.habit-row input:checked+.round-check::after{display:none}
+.month-day:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 17px rgba(48,42,31,.065)}
+.status-banner{animation:softEnter .28s ease-out both}.goal-card .bar i{animation:softBar .45s ease-out both}
+::view-transition-old(root){animation:calmFadeOut .14s ease both}::view-transition-new(root){animation:calmFadeIn .24s ease both}
+@keyframes softEnter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes softCheck{from{transform:scale(.88)}to{transform:scale(1)}}
+@keyframes softBar{from{transform:scaleX(.86);opacity:.75}to{transform:scaleX(1);opacity:1}}
+@keyframes calmFadeOut{to{opacity:0}}@keyframes calmFadeIn{from{opacity:0}}
+@media(prefers-reduced-motion:reduce){.page-head,.card,.status-banner,.goal-card .bar i,.habit-row input:checked+.round-check{animation:none!important}}

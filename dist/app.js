@@ -6,16 +6,17 @@
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayIso = iso(today);
-  const storeKey = "rhythm.tracker.v1";
+  const storeKey = "rhythm.tracker.v2";
+  const previousStoreKey = "rhythm.tracker.v1";
   const previousKeys = ["daily-rhythm.entries.v3", "daily-rhythm.entries.v2"];
   const categories = {
     vitamin: { name: "Supplements", icon: "💊", color: "#ec4f9b", rule: "Complete all" },
     activity: { name: "Activity", icon: "⚡", color: "#20b5b6", rule: "At least one" },
     schedule: { name: "Other", icon: "✦", color: "#8f61e8", rule: "Complete all" }
   };
-  const habitRules = { Magnesium: "Every day", Creatine: "Every day", Gym: "4× per week", Practice: "Monday–Thursday", Game: "Weekends", "Study · 1 hour": "7 hours per week" };
-  const habitIcons = { Magnesium: "💊", Creatine: "◈", Gym: "🏋️", Practice: "🏀", Game: "🏆", "Study · 1 hour": "📚" };
-  const habitColors = { Magnesium: "#ec4f9b", Creatine: "#8f61e8", Gym: "#20b5b6", Practice: "#38a7e8", Game: "#ff7a21", "Study · 1 hour": "#54ad67" };
+  const habitRules = { Magnesium: "Every day", Creatine: "Every day", Gym: "Choose 4 days per week", Practice: "Monday–Thursday", Game: "Weekends", "Study · 1 hour": "7 hours per week", "House cleaning": "Every day", "Drink water": "Every day", "Read · 20 minutes": "Every day", "Stretch · 10 minutes": "Every day", "Sleep · 8 hours": "Every day" };
+  const habitIcons = { Magnesium: "💊", Creatine: "◈", Gym: "🏋️", Practice: "🏀", Game: "🏆", "Study · 1 hour": "📚", "House cleaning": "🧹", "Drink water": "💧", "Read · 20 minutes": "📖", "Stretch · 10 minutes": "🧘", "Sleep · 8 hours": "🌙" };
+  const habitColors = { Magnesium: "#ec4f9b", Creatine: "#8f61e8", Gym: "#20b5b6", Practice: "#38a7e8", Game: "#ff7a21", "Study · 1 hour": "#54ad67", "House cleaning": "#e9a23b", "Drink water": "#3f9ee8", "Read · 20 minutes": "#8f61e8", "Stretch · 10 minutes": "#55b98a", "Sleep · 8 hours": "#6674d9" };
   const goalDefinitions = [
     { name: "Gym", target: 4, label: "Gym sessions this week" },
     { name: "Practice", target: 4, label: "Practice sessions this week" },
@@ -26,14 +27,18 @@
   function buildRoutineEntries() {
     const entries = [];
     const end = new Date(today.getFullYear() + 1, 11, 31);
-    const gymDays = new Set([0, 1, 3, 5]);
     for (let date = new Date(today); date <= end; date.setDate(date.getDate() + 1)) {
       const dateValue = iso(date), day = date.getDay();
       const add = (slug, type, name) => entries.push({ id: `${slug}-${dateValue}`, date: dateValue, type, name, time: "", done: false });
       add("magnesium", "vitamin", "Magnesium");
       add("creatine", "vitamin", "Creatine");
       add("study", "schedule", "Study · 1 hour");
-      if (gymDays.has(day)) add("gym", "activity", "Gym");
+      add("gym", "activity", "Gym");
+      add("house-cleaning", "activity", "House cleaning");
+      add("stretch", "activity", "Stretch · 10 minutes");
+      add("water", "schedule", "Drink water");
+      add("reading", "schedule", "Read · 20 minutes");
+      add("sleep", "schedule", "Sleep · 8 hours");
       if (day >= 1 && day <= 4) add("practice", "activity", "Practice");
       if (day === 0 || day === 6) add("game", "activity", "Game");
     }
@@ -41,9 +46,26 @@
   }
 
   function safeParse(value) { try { return value ? JSON.parse(value) : null; } catch { return null; } }
+  function addNewDailyHabits(entries) {
+    const upgraded = [...entries];
+    const additions = [
+      ["gym", "activity", "Gym"], ["house-cleaning", "activity", "House cleaning"], ["stretch", "activity", "Stretch · 10 minutes"],
+      ["water", "schedule", "Drink water"], ["reading", "schedule", "Read · 20 minutes"], ["sleep", "schedule", "Sleep · 8 hours"]
+    ];
+    const end = new Date(today.getFullYear() + 1, 11, 31);
+    for (let date = new Date(today); date <= end; date.setDate(date.getDate() + 1)) {
+      const dateValue = iso(date);
+      additions.forEach(([slug, type, name]) => {
+        if (!upgraded.some(entry => entry.date === dateValue && entry.name === name)) upgraded.push({ id: `${slug}-${dateValue}`, date: dateValue, type, name, time: "", done: false });
+      });
+    }
+    return upgraded;
+  }
   function loadState() {
     const current = safeParse(localStorage.getItem(storeKey));
     if (current?.entries) return current;
+    const previousState = safeParse(localStorage.getItem(previousStoreKey));
+    if (previousState?.entries) return { ...previousState, entries: addNewDailyHabits(previousState.entries) };
     const legacy = previousKeys.map(key => safeParse(localStorage.getItem(key))).find(Boolean);
     const entries = (legacy || buildRoutineEntries()).filter(entry => entry.date >= todayIso);
     return { entries, sickDays: [], notes: {}, settings: { theme: "system", weekStartsMonday: true } };
@@ -165,13 +187,9 @@
   }
   importFile.addEventListener("change", async () => { const file = importFile.files?.[0]; if (!file) return; const imported = safeParse(await file.text()); if (imported?.entries && Array.isArray(imported.entries)) { state = imported; save(); applyTheme(); render(); } importFile.value = ""; });
   function render() {
-    const update = () => {
-      document.querySelectorAll("nav a").forEach(link => link.classList.toggle("active", link.dataset.route === route()));
-      document.querySelector(".sick-toggle")?.remove();
-      ({ today: renderToday, month: renderMonth, year: renderYear, goals: renderGoals, habits: renderHabits, settings: renderSettings })[route()]();
-    };
-    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(update);
-    else update();
+    document.querySelectorAll("nav a").forEach(link => link.classList.toggle("active", link.dataset.route === route()));
+    document.querySelector(".sick-toggle")?.remove();
+    ({ today: renderToday, month: renderMonth, year: renderYear, goals: renderGoals, habits: renderHabits, settings: renderSettings })[route()]();
   }
   window.addEventListener("hashchange", render);
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applyTheme);
