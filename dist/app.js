@@ -3,16 +3,20 @@
   const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const parseDate = value => { const [y, m, d] = value.split("-").map(Number); return new Date(y, m - 1, d); };
   const today = new Date();
-  const storageKey = "daily-rhythm.entries.v2";
+  const storageKey = "daily-rhythm.entries.v3";
+  const previousStorageKey = "daily-rhythm.entries.v2";
   const starterEntries = buildRoutineEntries();
-  let entries = JSON.parse(localStorage.getItem(storageKey) || "null") || starterEntries;
+  const currentEntries = JSON.parse(localStorage.getItem(storageKey) || "null");
+  const previousEntries = JSON.parse(localStorage.getItem(previousStorageKey) || "null");
+  let entries = currentEntries || (previousEntries || starterEntries).filter(entry => entry.date >= iso(today));
+  localStorage.setItem(storageKey, JSON.stringify(entries));
   let selected = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   let visibleMonth = new Date(selected.getFullYear(), selected.getMonth(), 1);
   let activeFilter = "all";
 
   function buildRoutineEntries() {
     const items = [];
-    const start = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const end = new Date(today.getFullYear(), today.getMonth() + 19, 0);
     const gymDays = new Set([0, 1, 3, 5]); // Sunday, Monday, Wednesday, Friday
     for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
@@ -61,7 +65,8 @@
       if (dateIso === iso(selected)) button.classList.add("selected");
       if (dateIso === iso(today)) button.classList.add("today");
       button.setAttribute("aria-label", date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
-      const dots = dayEntries.slice(0, 5).map(entry => `<i class="${entry.type}"></i>`).join("");
+      const completedEntries = dayEntries.filter(entry => entry.done);
+      const dots = completedEntries.slice(0, 5).map(entry => `<i class="${entry.type}"></i>`).join("");
       button.innerHTML = `<span class="date-number">${date.getDate()}</span><span class="day-dots">${dots}</span>${dayEntries.length ? `<span class="day-count">${dayEntries.length}</span>` : ""}`;
       button.addEventListener("click", () => { selected = date; if (date.getMonth() !== month) visibleMonth = new Date(date.getFullYear(), date.getMonth(), 1); render(); });
       grid.append(button);
