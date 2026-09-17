@@ -98,11 +98,67 @@ input, select { width: 100%; min-height: 48px; padding: 11px 13px; border: 1px s
 input:focus, select:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(200,255,100,.1); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .dialog-actions { justify-content: flex-end; margin-top: 24px; }
-@media (max-width: 960px) { .workspace { grid-template-columns: 1fr; }.day-panel { min-height: 420px; }.calendar-day { min-height: 88px; } }
-@media (max-width: 620px) {
-  .shell { padding: 0 14px 28px; }.topbar { height: 74px; }.today-button { display: none; }.brand span:last-child { display: none; }
-  .intro { padding-top: 28px; }.calendar-grid { padding: 5px; }.calendar-day { min-height: 64px; padding: 6px; border-radius: 11px; }.date-number { width: 26px; height: 26px; font-size: .82rem; }
-  .day-dots { margin-top: 8px; gap: 3px; }.day-dots i { width: 5px; height: 5px; }.day-count, .legend { display: none; }.weekdays { padding-inline: 4px; font-size: .6rem; }
-  .day-panel { padding: 20px; }.form-row { grid-template-columns: 1fr; gap: 0; }.add-button { padding: 11px 14px; }
+@media (max-width: 960px) {
+  .workspace { grid-template-columns: 1fr; }
+  .day-panel { min-height: 420px; }
+  .calendar-day { min-height: 88px; }
+}
+
+@media (max-width: 700px) {
+  .shell { width: 100%; padding: 0 12px 28px; }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 70px;
+    margin: 0 -12px;
+    padding: 0 12px;
+    background: rgba(8, 13, 24, .92);
+    backdrop-filter: blur(14px);
+  }
+  .brand span:last-child { font-size: .95rem; }
+  .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
+  .today-button { display: none; }
+  .add-button { min-height: 44px; padding: 10px 14px; }
+  .intro { align-items: center; padding: 25px 2px 18px; }
+  h1 { font-size: clamp(2rem, 10vw, 2.65rem); }
+  .month-nav { gap: 7px; }
+  .icon-button { width: 44px; height: 44px; }
+  .workspace { gap: 12px; }
+  .calendar-card, .day-panel { border-radius: 18px; box-shadow: 0 18px 50px rgba(0, 0, 0, .25); }
+  .weekdays { padding: 13px 4px 9px; font-size: .7rem; letter-spacing: .03em; }
+  .calendar-grid { padding: 5px; }
+  .calendar-day { min-height: 66px; padding: 6px; border-radius: 10px; }
+  .date-number { width: 27px; height: 27px; font-size: .84rem; border-radius: 8px; }
+  .day-dots { margin-top: 7px; gap: 3px; }
+  .day-dots i { width: 5px; height: 5px; }
+  .day-count, .legend { display: none; }
+  .day-panel { min-height: 390px; padding: 20px 16px 16px; }
+  .day-panel h2 { font-size: 1.4rem; }
+  .completion-ring { width: 52px; height: 52px; }
+  .filters { gap: 4px; margin: 20px 0 14px; padding-bottom: 2px; }
+  .filter { min-height: 42px; padding: 9px 12px; font-size: .82rem; }
+  .entry-card { grid-template-columns: 36px minmax(0, 1fr) 44px; min-height: 72px; padding: 12px; gap: 10px; }
+  .check { width: 32px; height: 32px; }
+  .delete-entry { width: 44px; height: 44px; font-size: 1.3rem; }
+  .entry-card h3 { font-size: 1rem; }
+  .entry-time { font-size: .78rem; }
+  .panel-add { min-height: 52px; margin-top: 18px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+  form { max-height: calc(100dvh - 20px); padding: 22px 18px; overflow-y: auto; }
+  input, select { min-height: 50px; font-size: 1rem; }
+}
+
+@media (max-width: 390px) {
+  .brand span:last-child { display: none; }
+  .header-actions { gap: 6px; }
+  .intro { padding-top: 21px; }
+  .eyebrow { font-size: .7rem; }
+  h1 { font-size: 2rem; }
+  .calendar-day { min-height: 59px; padding: 4px; }
+  .date-number { width: 25px; height: 25px; }
+  .weekdays { font-size: .64rem; }
+  .filter { padding-inline: 10px; }
 }
 @media (prefers-reduced-motion: no-preference) { button { transition: .18s ease; }.entry-card { animation: enter .25s ease both; } @keyframes enter { from { opacity: 0; transform: translateY(6px); } } }
