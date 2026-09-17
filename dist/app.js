@@ -165,9 +165,13 @@
   }
   importFile.addEventListener("change", async () => { const file = importFile.files?.[0]; if (!file) return; const imported = safeParse(await file.text()); if (imported?.entries && Array.isArray(imported.entries)) { state = imported; save(); applyTheme(); render(); } importFile.value = ""; });
   function render() {
-    document.querySelectorAll("nav a").forEach(link => link.classList.toggle("active", link.dataset.route === route()));
-    document.querySelector(".sick-toggle")?.remove();
-    ({ today: renderToday, month: renderMonth, year: renderYear, goals: renderGoals, habits: renderHabits, settings: renderSettings })[route()]();
+    const update = () => {
+      document.querySelectorAll("nav a").forEach(link => link.classList.toggle("active", link.dataset.route === route()));
+      document.querySelector(".sick-toggle")?.remove();
+      ({ today: renderToday, month: renderMonth, year: renderYear, goals: renderGoals, habits: renderHabits, settings: renderSettings })[route()]();
+    };
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(update);
+    else update();
   }
   window.addEventListener("hashchange", render);
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applyTheme);
