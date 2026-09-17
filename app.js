@@ -3,17 +3,31 @@
   const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const parseDate = value => { const [y, m, d] = value.split("-").map(Number); return new Date(y, m - 1, d); };
   const today = new Date();
-  const storageKey = "daily-rhythm.entries.v1";
-  const starterDate = iso(today);
-  const starterEntries = [
-    { id: "starter-1", date: starterDate, type: "vitamin", name: "Vitamin D", time: "08:00", done: true },
-    { id: "starter-2", date: starterDate, type: "activity", name: "Morning walk", time: "08:30", done: false },
-    { id: "starter-3", date: starterDate, type: "schedule", name: "Plan the week", time: "18:00", done: false }
-  ];
+  const storageKey = "daily-rhythm.entries.v2";
+  const starterEntries = buildRoutineEntries();
   let entries = JSON.parse(localStorage.getItem(storageKey) || "null") || starterEntries;
   let selected = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   let visibleMonth = new Date(selected.getFullYear(), selected.getMonth(), 1);
   let activeFilter = "all";
+
+  function buildRoutineEntries() {
+    const items = [];
+    const start = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+    const end = new Date(today.getFullYear(), today.getMonth() + 19, 0);
+    const gymDays = new Set([0, 1, 3, 5]); // Sunday, Monday, Wednesday, Friday
+    for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+      const day = date.getDay();
+      const dateValue = iso(date);
+      const add = (slug, type, name) => items.push({ id: `${slug}-${dateValue}`, date: dateValue, type, name, time: "", done: false });
+      add("magnesium", "vitamin", "Magnesium");
+      add("creatine", "vitamin", "Creatine");
+      add("study", "schedule", "Study · 1 hour");
+      if (gymDays.has(day)) add("gym", "activity", "Gym");
+      if (day >= 1 && day <= 4) add("practice", "activity", "Practice");
+      if (day === 0 || day === 6) add("game", "activity", "Game");
+    }
+    return items;
+  }
 
   const grid = document.querySelector("#calendarGrid");
   const monthTitle = document.querySelector("#monthTitle");
