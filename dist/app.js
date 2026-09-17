@@ -119,7 +119,7 @@
     app.querySelectorAll(".habit-row input").forEach(input => input.addEventListener("change", event => {
       const id = event.currentTarget.closest(".habit-row").dataset.entryId;
       const entry = state.entries.find(item => item.id === id); if (entry) entry.done = event.currentTarget.checked;
-      save(); render();
+      save(); render({ quiet: true });
     }));
   }
 
@@ -133,7 +133,7 @@
       <section class="card today-card ${statusFor(selected)}">${state.sickDays.includes(iso(selected)) ? `<div class="status-banner">🤒 Sick day marked — this date is now red on your calendar.</div>` : ""}<p class="card-kicker">Today's habits</p><div class="progress-head"><span>${completed} / ${dateEntries.length} completed</span><span class="muted">${percent}% today</span></div>${renderProgress(dateEntries)}<p class="category-goals">${met} of ${Object.keys(categories).length} category goals met</p>${habitGroups(selected)}<div class="today-actions"><button class="soft-button" id="addNote">${state.notes[iso(selected)] ? "Edit note" : "Add a note"}</button><button class="soft-button" id="markMoment">Mark a moment</button></div></section>
       <button class="sick-toggle ${state.sickDays.includes(iso(selected)) ? "active" : ""}" id="sickToggle">🤒 Feeling sick${state.sickDays.includes(iso(selected)) ? " · Marked" : ""}</button>`;
     app.querySelectorAll(".date-pill").forEach(button => button.addEventListener("click", () => { selected = parseDate(button.dataset.date); render(); }));
-    document.querySelector("#sickToggle").addEventListener("click", () => { const value = iso(selected); state.sickDays = state.sickDays.includes(value) ? state.sickDays.filter(day => day !== value) : [...state.sickDays, value]; save(); render(); });
+    document.querySelector("#sickToggle").addEventListener("click", () => { const value = iso(selected); state.sickDays = state.sickDays.includes(value) ? state.sickDays.filter(day => day !== value) : [...state.sickDays, value]; save(); render({ quiet: true }); });
     document.querySelector("#addNote").addEventListener("click", () => { const value = prompt("Note for this day", state.notes[iso(selected)] || ""); if (value !== null) { state.notes[iso(selected)] = value.trim(); save(); render(); } });
     document.querySelector("#markMoment").addEventListener("click", () => { state.notes[iso(selected)] = [state.notes[iso(selected)], "★ Moment marked"].filter(Boolean).join("\n"); save(); render(); });
     wireHabitChecks();
@@ -186,7 +186,8 @@
     document.querySelector("#resetEverything").addEventListener("click", () => { if (confirm("Reset all tracker data?")) { state = { entries: buildRoutineEntries(), sickDays: [], notes: {}, settings: { theme: "system", weekStartsMonday: true } }; save(); applyTheme(); render(); } });
   }
   importFile.addEventListener("change", async () => { const file = importFile.files?.[0]; if (!file) return; const imported = safeParse(await file.text()); if (imported?.entries && Array.isArray(imported.entries)) { state = imported; save(); applyTheme(); render(); } importFile.value = ""; });
-  function render() {
+  function render({ quiet = false } = {}) {
+    app.classList.toggle("quiet-update", quiet);
     document.querySelectorAll("nav a").forEach(link => link.classList.toggle("active", link.dataset.route === route()));
     document.querySelector(".sick-toggle")?.remove();
     ({ today: renderToday, month: renderMonth, year: renderYear, goals: renderGoals, habits: renderHabits, settings: renderSettings })[route()]();

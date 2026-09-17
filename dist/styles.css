@@ -65,3 +65,4 @@ nav a:hover{transform:translateY(-1px)}nav a.active{transform:none;box-shadow:0 
 @keyframes softBar{from{transform:scaleX(.86);opacity:.75}to{transform:scaleX(1);opacity:1}}
 @keyframes calmFadeOut{to{opacity:0}}@keyframes calmFadeIn{from{opacity:0}}
 @media(prefers-reduced-motion:reduce){.page-head,.card,.status-banner,.goal-card .bar i,.habit-row input:checked+.round-check{animation:none!important}}
+.quiet-update .page-head,.quiet-update .card,.quiet-update .habit-row,.quiet-update .date-pill,.quiet-update .month-day,.quiet-update .status-banner,.quiet-update .segmented-progress i,.quiet-update .mini-track i,.quiet-update .day-progress i,.quiet-update .round-check{animation:none!important;transition:none!important;transform:none!important}
